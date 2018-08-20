@@ -10,13 +10,26 @@ struct Rectangle {
     height: u32,
 }
 
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        self.width > other.width && self.height > other.height
+    }
+}
+
 fn main() {
     let u = build_user(String::from("odesenfans"), String::from("desenfans.olivier@gmail.com"));
     println!("{} ({})", u.username, u.email);
 
-    let rect = Rectangle {width: 40, height: 100};
-    println!("The area of the rectangle is {} pixels", area(&rect));
-    println!("rect is {:?}", rect);
+    let rect1 = Rectangle {width: 40, height: 100};
+    let rect2 = Rectangle {width: 20, height: 59};
+    println!("The area of rect1 is {} pixels", rect1.area());
+    println!("rect1 is {:?}", rect1);
+    println!("rect2 is {:?}", rect2);
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
 }
 
 fn build_user(email: String, username: String) -> User {
@@ -25,8 +38,4 @@ fn build_user(email: String, username: String) -> User {
         username,
         active: true,
     }
-}
-
-fn area(rect: &Rectangle) -> u32 {
-    rect.width * rect.height
 }
