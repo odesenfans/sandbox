@@ -16,8 +16,27 @@ struct Coordinates {
     lat: f64,
 }
 
+impl Coordinates {
+    fn distance_from(&self, orig: &Coordinates) -> f64 {
+        const EARTH_RADIUS: f64 = 6371000f64;
+
+        let orig_lat = orig.lat.to_radians();
+        let dest_lat = self.lat.to_radians();
+
+        let delta_lat = dest_lat - orig_lat;
+        let delta_long = (self.long - orig.long).to_radians();
+
+        let a = (delta_lat / 2.0).sin().powf(2.0)
+            + orig_lat.cos() * dest_lat.cos() * (delta_long / 2.0).sin().powf(2.0);
+
+        let c = 2.0 * a.sqrt().atan2((1.0 - a).sqrt());
+
+        EARTH_RADIUS * c
+    }
+}
+
 #[derive(Debug)]
-enum CoordinatesError {
+pub enum CoordinatesError {
     Io(::std::io::Error),
     CityNotFound(String),
 }
@@ -56,7 +75,7 @@ impl Coordinates {
     }
 }
 
-pub fn run(args: Args) -> Result <(), String> {
+pub fn run(args: Args) -> Result<(), CoordinatesError> {
     println!("{:?}", args);
 
     let orig = args.arg_origin;
@@ -67,6 +86,13 @@ pub fn run(args: Args) -> Result <(), String> {
 
     println!("Coordinates of origin ({}): {:?}", orig, coord_orig);
     println!("Coordinates of destination ({}): {:?}", dest, coord_dest);
+
+    println!(
+        "Distance between {} and {}: {}",
+        orig,
+        dest,
+        coord_dest.distance_from(&coord_orig)
+    );
 
     Ok(())
 }
